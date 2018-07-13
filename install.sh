@@ -29,10 +29,10 @@ REGMIRROR=192.168.1.7:5000 #YOUR_OWN_DOCKER_REGISTRY_MIRROR_URL # docker registr
 
 # you can get the following values from `kubeadm init` output
 # these are needed when creating node
-MASTERTOKEN=yvwlm8.bxi9ceic5cuxzfxm
+MASTERTOKEN=klxqkq.c0i79fei3pi5b7mj
 MASTERIP=192.168.1.6
 MASTERPORT=6443
-MASTERHASH=4074aed549027b2b14fc0e0184ccd12f441546eef308914c5737da8b27a429d5
+MASTERHASH=5ad205217223d919f9519d08860164d30cbd8343e4e3f768b679410fcecc2d6b
 
 install_docker() {
   mkdir /etc/docker
@@ -76,7 +76,7 @@ install_kube_commands() {
   #apt-cache policy kubeadm #查看版本号，按这种版本来安装
   #apt-get purge kubelet kubeadm kubectl #删除错误的版本
   #apt-get update && apt-get install -y kubelet kubeadm kubectl #安装最后版本
-  apt-get update && apt-get install kubeadm=1.10.5-00 kubectl=1.10.5-00 kubelet=1.10.5-00
+  apt-get update && apt-get install kubeadm=1.10.5-00 kubectl=1.10.5-00 kubelet=1.10.5-00 kubernetes-cni=0.6.0-00
 }
 
 restart_kubelet() {
@@ -122,8 +122,10 @@ case "$1" in
     swapoff -a #刚开机就运行，会成功，可能这个时候还没用到swap或者用的不多
     sysctl net.bridge.bridge-nf-call-iptables=1
     restart_kubelet
-    swapoff -a #刚开机就运行，会成功，可能这个时候还没用到swap或者用的不多
+    kubeadm reset
     kubeadm join --token $MASTERTOKEN $MASTERIP:$MASTERPORT --discovery-token-ca-cert-hash sha256:$MASTERHASH
+    #kubectl apply -f kube-flannel-legacy.yml 
+    #kubectl apply -f kube-flannel-rbac.yml 
     ;;
   "post")
     if [[ $EUID -ne 0 ]]; then
