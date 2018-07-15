@@ -30,7 +30,7 @@ REGMIRROR=192.168.1.7:5000 #YOUR_OWN_DOCKER_REGISTRY_MIRROR_URL # docker registr
 # you can get the following values from `kubeadm init` output
 # these are needed when creating node
 MASTERTOKEN=klxqkq.c0i79fei3pi5b7mj
-MASTERIP=192.168.1.6
+MASTERIP=182.254.161.232
 MASTERPORT=6443
 MASTERHASH=5ad205217223d919f9519d08860164d30cbd8343e4e3f768b679410fcecc2d6b
 
@@ -80,9 +80,9 @@ install_kube_commands() {
 }
 
 restart_kubelet() {
-  #sed -i "s,ExecStart=$,Environment=\"KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1\"\nExecStart=,g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-  sed -i "s,ExecStart=$,Environment=\"KUBELET_EXTRA_ARGS=--pod-infra-container-image=k8s.gcr.io/pause-amd64:3.1\"\nExecStart=,g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-  
+  sed -i "s,ExecStart=$,Environment=\"KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1\"\nExecStart=,g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+ # sed -i "s,ExecStart=$,Environment=\"KUBELET_EXTRA_ARGS=--pod-infra-container-image=k8s.gcr.io/pause-amd64:3.1\"\nExecStart=,g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
   systemctl daemon-reload
   systemctl restart kubelet
 }
@@ -112,10 +112,7 @@ case "$1" in
     #kubeadm init --config $KUBECONF
     #kubeadm init --kubernetes-version=v1.10.0 --pod-network-cidr=10.244.0.0/16 --node-name=master
     kubeadm reset
-    kubeadm init --kubernetes-version=1.10.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.1.6
-    kubectl apply -f kube-flannel-legacy.yml 
-    kubectl apply -f kube-flannel-rbac.yml 
-    kubectl taint nodes --all node-role.kubernetes.io/master-  #需要master运行pod的话
+    kubeadm init --kubernetes-version=1.10.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$MASTERIP
     ;;
   "kubernetes-node")
     ufw disable
@@ -124,8 +121,7 @@ case "$1" in
     restart_kubelet
     kubeadm reset
     kubeadm join --token $MASTERTOKEN $MASTERIP:$MASTERPORT --discovery-token-ca-cert-hash sha256:$MASTERHASH
-    #kubectl apply -f kube-flannel-legacy.yml 
-    #kubectl apply -f kube-flannel-rbac.yml 
+    kubectl taint nodes --all node-role.kubernetes.io/master-  #需要master运行pod的话
     ;;
   "post")
     if [[ $EUID -ne 0 ]]; then
@@ -135,9 +131,9 @@ case "$1" in
     enable_kubectl
     apply_flannel
     ;;
-    "reset")
-    kubeadm reset
-    kubeadm init --kubernetes-version=1.10.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.1.6
+  "local")
+    kubectl apply -f kube-flannel-legacy.yml
+    kubectl apply -f kube-flannel-rbac.yml
     ;;
   *)
     echo "huh ????"
@@ -145,8 +141,8 @@ case "$1" in
 esac
 
     mkdir -p $HOME/.kube
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    cp -if /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
 
     #非Master执行kubectl
     #scp root@&lt;master ip&gt;:/etc/kubernetes/admin.conf .
