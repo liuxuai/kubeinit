@@ -112,7 +112,8 @@ case "$1" in
     #kubeadm init --config $KUBECONF
     #kubeadm init --kubernetes-version=v1.10.0 --pod-network-cidr=10.244.0.0/16 --node-name=master
     kubeadm reset
-    kubeadm init --kubernetes-version=1.10.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$MASTERIP
+    kubeadm init --kubernetes-version=1.10.0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$MASTERIP    
+    #kubectl taint nodes --all node-role.kubernetes.io/master-  #需要master运行pod的话
     ;;
   "kubernetes-node")
     ufw disable
@@ -121,7 +122,6 @@ case "$1" in
     restart_kubelet
     kubeadm reset
     kubeadm join --token $MASTERTOKEN $MASTERIP:$MASTERPORT --discovery-token-ca-cert-hash sha256:$MASTERHASH
-    kubectl taint nodes --all node-role.kubernetes.io/master-  #需要master运行pod的话
     ;;
   "post")
     if [[ $EUID -ne 0 ]]; then
