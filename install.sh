@@ -7,7 +7,7 @@
 #  https://kubernetes.io/docs/concepts/cluster-administration/addons/
 #You can now join any number of machines by running the following on each node
 #as root:
-#  kubeadm join 192.168.1.6:6443 --token klxqkq.c0i79fei3pi5b7mj --discovery-token-ca-cert-hash sha256:5ad205217223d919f9519d08860164d30cbd8343e4e3f768b679410fcecc2d6b
+#  kubeadm join 193.112.128.67:6443 --token h01dck.poqj0r71zpajtnfg --discovery-token-ca-cert-hash sha256:7a076828b21213f22966ceb0b0035b507d41c222d1283e302abc610fc822c21e
 #  kubeadm join $MASTERIP:$MASTERPORT --token $MASTERTOKEN  --discovery-token-ca-cert-hash sha256:$MASTERHASH
 
 # KUBE_REPO_PREFIX=registry.cn-hangzhou.aliyuncs.com/google-containers
@@ -21,18 +21,18 @@
 
 set -x
 
-USER=scott # 用户   #Modified by Scott
-GROUP=scott # 组   #Modified by Scott
+USER=ubuntu # 用户   #Modified by Scott
+GROUP=ubuntu # 组   #Modified by Scott
 FLANELADDR=https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml
 KUBECONF=/home/ubuntu/kubeadm.conf # 文件地址, 改成你需要的路径
 REGMIRROR=192.168.1.7:5000 #YOUR_OWN_DOCKER_REGISTRY_MIRROR_URL # docker registry mirror 地址
 
 # you can get the following values from `kubeadm init` output
 # these are needed when creating node
-MASTERTOKEN=klxqkq.c0i79fei3pi5b7mj
-MASTERIP=182.254.161.232
+MASTERTOKEN=h01dck.poqj0r71zpajtnfg
+MASTERIP=193.112.128.67
 MASTERPORT=6443
-MASTERHASH=5ad205217223d919f9519d08860164d30cbd8343e4e3f768b679410fcecc2d6b
+MASTERHASH=7a076828b21213f22966ceb0b0035b507d41c222d1283e302abc610fc822c21e
 
 install_docker() {
   mkdir /etc/docker

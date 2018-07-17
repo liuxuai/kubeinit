@@ -10,4 +10,4 @@ for image in ${images[@]} ; do
   docker tag xuliu/$image k8s.gcr.io/$image
   docker rmi xuliu/$image
 done
-docker tag gcr.io/google_containers/pause-amd64:3.1 registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1
+docker tag k8s.gcr.io/pause-amd64:3.1 registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1
